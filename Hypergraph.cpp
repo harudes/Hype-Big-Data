@@ -1,1 +1,1 @@
-#include "Hypergraph.h"
+#include "Hypergraph.hpp"
