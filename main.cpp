@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Hypergraph.h"
+#include "Hypergraph.hpp"
 
 using namespace std;
 
