@@ -80,7 +80,7 @@ auto Hypergraph::getEdges(){
     return edges;
 }
 
-auto Hypergraph::getVertices(){
+std::map<int,std::set<int> > Hypergraph::getVertices(){
     return vertices;
 }
 

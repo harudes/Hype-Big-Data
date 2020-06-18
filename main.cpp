@@ -12,10 +12,13 @@ void parse(Hypergraph graph){
         cin>>tempV>>tempE;
         graph.connect(tempV,tempE);
     }
+    cout<<endl<<endl;
 }
 
 int main(int argc, char* argv[]){
     srand(time(NULL));
-    Hypergraph grafo();
+    Hypergraph grafo;
+    parse(grafo);
+    cout<<grafo.getVertices().begin()->first<<endl;
     return 0;
 }

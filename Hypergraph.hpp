@@ -17,7 +17,7 @@ public:
     std::size_t getEdgesizeOfPercentBiggestEdge(double percent);
     void connect(int v, int e);
     auto getEdges();
-    auto getVertices();
+    std::map<int,std::set<int> > getVertices();
     void deleteVertex(int v);
     std::set<int> getVertexEdges(int v);
     auto getEdgeVertices(int e);
