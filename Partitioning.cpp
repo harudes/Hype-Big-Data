@@ -7,22 +7,17 @@
 #include <numeric>
 
 
-auto part::partitionGraph(Hypergraph&& graph,
+auto part::partitionGraph(Hypergraph& graph,
                           std::size_t number_of_partitions,
                           std::size_t s_set_size,
                           std::size_t s_set_candidates,
                           double ignore_biggest_edges_in_percent,
                           NodeHeuristicMode num_neigs_flag,
                           NodeSelectionMode node_select_flag)
-    -> std::vector<Partition>
-{
-    // All the partitions will have a similar number of nodes, with a difference of at most 1 node.
-    // For example, having 95 nodes and 10 partitions, the first 5 partitions will have 10 nodes each,
-    // and the last 5 partitions will have 9 nodes each.
+    -> std::vector<Partition>{
     const auto delta = graph.getVertices().size() / number_of_partitions; // truncated
     const auto padded_partitions = graph.getVertices().size() - number_of_partitions*delta;
 
-    // helper function to check if the partition is full
     auto is_partition_full = [&delta, &padded_partitions](std::size_t index, auto&& partition) {
         if (index < padded_partitions) {
             return partition.numberOfNodes() >= delta + 1; 
@@ -49,22 +44,17 @@ auto part::partitionGraph(Hypergraph&& graph,
 
             auto next_node = s_set.getNextNode();
 
-            // insert node to C
             part.addNode(next_node,
-                         graph.getEdgesOf(next_node));
+                         graph.getVertexEdges(next_node));
 
-            // delete next node from S\C because it was added to C
             s_set.removeNode(next_node);
 
-            //get candidates for sset expandion
             auto add_to_s = graph.getSSetCandidates(next_node,
                                                     s_set_candidates,
                                                     max_edge_size);
 
-            //delete next node from graph
             graph.deleteVertex(next_node);
 
-            //and expand sset
             s_set.addNodes(std::move(add_to_s));
         }
 
@@ -80,12 +70,10 @@ auto part::getSumOfExteralDegrees(const std::vector<Partition>& partitions)
 {
     return std::async(std::launch::async,
                       [&partitions]() -> std::size_t {
-                          //start futures
                           std::vector<std::future<std::size_t>> fut_vec;
                           for(auto&& part : partitions) {
                               fut_vec.emplace_back(part.externalDegree(partitions));
                           }
-                          //collect futures and accumulate the results
                           return std::accumulate(std::begin(fut_vec),
                                                  std::end(fut_vec),
                                                  0,
@@ -128,16 +116,15 @@ auto part::getEdgeBalancing(const std::vector<Partition>& partitions)
 {
     return std::async(std::launch::async,
                       [&partitions]() -> double {
-                          //get iterator to the biggest and smallest partition
-                          auto [smallest_iter, biggest_iter] =
+                          auto minmax =
                               std::minmax_element(std::cbegin(partitions),
                                                   std::cend(partitions),
                                                   [](auto&& lhs, auto&& rhs) {
                                                       return lhs.numberOfEdges() < rhs.numberOfEdges();
                                                   });
 
-                          auto biggest = biggest_iter->numberOfEdges();
-                          auto smallest = smallest_iter->numberOfEdges();
+                          auto biggest = minmax.second->numberOfEdges();
+                          auto smallest = minmax.first->numberOfEdges();
 
                           return (biggest - smallest)
                               / static_cast<double>(biggest);
@@ -149,17 +136,14 @@ auto part::getVertexBalancing(const std::vector<Partition>& partitions)
 {
     return std::async(std::launch::async,
                       [&partitions]() -> double {
-                          //get iterator to the biggest and smallest partition
-                          auto [smallest_iter, biggest_iter] =
-                              std::minmax_element(std::cbegin(partitions),
+                          auto minmax = std::minmax_element(std::cbegin(partitions),
                                                   std::cend(partitions),
                                                   [](auto&& lhs, auto&& rhs) {
                                                       return lhs.numberOfNodes() < rhs.numberOfNodes();
                                                   });
 
-
-                          auto biggest = biggest_iter->numberOfNodes();
-                          auto smallest = smallest_iter->numberOfNodes();
+                          auto biggest = minmax.second->numberOfNodes();
+                          auto smallest = minmax.first->numberOfNodes();
 
                           return (biggest - smallest)
                               / static_cast<double>(biggest);

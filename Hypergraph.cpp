@@ -121,7 +121,7 @@ std::set<int> Hypergraph::getEdgeVertices(int e){
     }
 }
 
-auto Hypergraph::getSSetCandidates(int v, std::size_t n, std::size_t maxEdgeSize){
+std::set<int> Hypergraph::getSSetCandidates(int v, std::size_t n, std::size_t maxEdgeSize){
     auto edges = getVertexEdges(v);
     std::set<int> neighboors;
     std::size_t currentMax = 2;

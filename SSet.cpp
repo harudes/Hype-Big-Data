@@ -68,21 +68,17 @@ auto part::operator<<(std::ostream& os, const part::NodeSelectionMode& num)
 }
 
 auto part::SSet::addNodes(const std::set<int>& nodes_to_add)
-    -> void
-{
-    //create vec with number of neigs pair
+    -> void{
     std::vector<std::pair<int, std::size_t>> nodes_to_add_neig_vec;
     for(auto&& node : nodes_to_add) {
         auto neigs = getNodeHeuristic(node);
         nodes_to_add_neig_vec.emplace_back(node, neigs);
     }
 
-    //sort to get smallest number of neigs first
     std::sort(std::begin(nodes_to_add_neig_vec),
               std::end(nodes_to_add_neig_vec),
               [](auto lhs, auto rhs) { return lhs.second < rhs.second; });
 
-    //do the same with the nodes of this sset
     std::vector<std::pair<int, std::size_t>> nodes_neig_vec;
     for(auto&& node : _nodes) {
         auto neigs = getNodeHeuristic(node);
@@ -93,8 +89,6 @@ auto part::SSet::addNodes(const std::set<int>& nodes_to_add)
               std::end(nodes_neig_vec),
               [](auto lhs, auto rhs) { return lhs.second < rhs.second; });
 
-
-    //merge the two sorted vectors
     std::vector<std::pair<int, std::size_t>> merged_vec;
     std::merge(std::begin(nodes_neig_vec),
                std::end(nodes_neig_vec),
@@ -103,10 +97,8 @@ auto part::SSet::addNodes(const std::set<int>& nodes_to_add)
                std::back_inserter(merged_vec),
                [](auto&& lhs, auto&& rhs) { return lhs.second < rhs.second; });
 
-    //erase nodes
     _nodes.clear();
 
-    //replace with the smallest n nodes from the merged vector
     auto range = std::min(merged_vec.size(), _max_size);
     for(std::size_t i{0}; i < range; ++i) {
         _nodes.insert(merged_vec[i].first);
@@ -117,7 +109,7 @@ auto part::SSet::getMinElement() const
     -> std::optional<int>
 {
     std::optional<std::size_t> neigs;
-    std::optional<std::int> min_node;
+    std::optional<int> min_node;
 
     for(auto&& node : _nodes) {
         auto num_of_neigs = getNodeHeuristic(node);
@@ -135,8 +127,8 @@ auto part::SSet::getMinElement() const
 auto part::SSet::getNextNode() const
     -> int
 {
-    if(auto min_node_opt = getMinElement();
-       min_node_opt) {
+    auto min_node_opt = getMinElement();
+    if(min_node_opt) {
         return min_node_opt.value();
     }
 
@@ -164,7 +156,7 @@ auto part::SSet::selectANode() const
     case NodeSelectionMode::TrulyRandom:
         return _graph.getRandomNode();
     default:
-        return _graph.getANode();
+        return _graph.getAnyNode();
     }
 }
 

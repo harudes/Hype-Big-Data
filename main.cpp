@@ -23,5 +23,6 @@ int main(int argc, char* argv[]){
     for(auto it = vertices.begin(); it != vertices.end(); ++it){
         cout<<*it<<endl;
     }
+    auto partitions = part::partitionGraph(grafo, 4, 2, 10, 0, part::NodeHeuristicMode::Cached, part::NodeSelectionMode::NextBest);
     return 0;
 }

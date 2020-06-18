@@ -15,8 +15,6 @@ enum class NodeSelectionMode {
     NextBest
 };
 
-//needed to be able to use the NodeHeuristicNode enum
-//as commandline arument
 auto operator>>(std::istream& in, part::NodeHeuristicMode& num)
     -> std::istream&;
 auto operator<<(std::ostream& os, const part::NodeHeuristicMode& num)
@@ -29,7 +27,7 @@ auto operator<<(std::ostream& os, const part::NodeSelectionMode& num)
 class SSet
 {
 public:
-    SSet(const Hypergraph& graph,
+    SSet(Hypergraph& graph,
          std::size_t max_size,
          NodeHeuristicMode numb_of_neigs_flag,
          NodeSelectionMode node_select_flag)
@@ -42,7 +40,7 @@ public:
         -> void;
 
     auto getMinElement() const
-        -> int;
+        -> std::optional<int>;
 
     auto getNextNode() const
         -> int;
@@ -59,7 +57,7 @@ private:
 
 private:
     std::set<int> _nodes;
-    const Hypergraph& _graph;
+    Hypergraph& _graph;
     std::size_t _max_size;
     NodeHeuristicMode _numb_of_neigs_flag;
     NodeSelectionMode _node_select_flag;

@@ -21,7 +21,7 @@ public:
     void deleteVertex(int v);
     std::set<int> getVertexEdges(int v);
     std::set<int> getEdgeVertices(int e);
-    auto getSSetCandidates(int v, std::size_t n, std::size_t maxEdgeSize);
+    std::set<int> getSSetCandidates(int v, std::size_t n, std::size_t maxEdgeSize);
     double getNodeHeuristicExactly(const int v);
     double getNodeHeuristicEstimate(int v);
     int getRandomNode();
