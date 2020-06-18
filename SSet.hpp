@@ -39,11 +39,9 @@ public:
     auto addNodes(const std::set<int>& nodes_to_add)
         -> void;
 
-    auto getMinElement() const
-        -> std::optional<int>;
+    int getMinElement();
 
-    auto getNextNode() const
-        -> int;
+    int getNextNode();
 
     auto removeNode(const int& node)
         -> void;

@@ -105,31 +105,27 @@ auto part::SSet::addNodes(const std::set<int>& nodes_to_add)
     }
 }
 
-auto part::SSet::getMinElement() const
-    -> std::optional<int>
-{
-    std::optional<std::size_t> neigs;
-    std::optional<int> min_node;
+int part::SSet::getMinElement(){
+    std::size_t neigs;
+    int minNode;
 
-    for(auto&& node : _nodes) {
-        auto num_of_neigs = getNodeHeuristic(node);
-        if(num_of_neigs <= 1) {
+    for(auto node : _nodes) {
+        auto numOfNeigs = getNodeHeuristic(node);
+        if(numOfNeigs <= 1) {
             return node;
-        } else if(!neigs || neigs.value() > num_of_neigs) {
-            neigs = num_of_neigs;
-            min_node = node;
+        } else if(!neigs || neigs > numOfNeigs) {
+            neigs = numOfNeigs;
+            minNode = node;
         }
     }
 
-    return min_node;
+    return minNode;
 }
 
-auto part::SSet::getNextNode() const
-    -> int
-{
-    auto min_node_opt = getMinElement();
-    if(min_node_opt) {
-        return min_node_opt.value();
+int part::SSet::getNextNode(){
+    auto minNodeOpt = getMinElement();
+    if(minNodeOpt) {
+        return minNodeOpt;
     }
 
     return selectANode();

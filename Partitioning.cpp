@@ -7,61 +7,32 @@
 #include <numeric>
 
 
-auto part::partitionGraph(Hypergraph& graph,
-                          std::size_t number_of_partitions,
-                          std::size_t s_set_size,
-                          std::size_t s_set_candidates,
-                          double ignore_biggest_edges_in_percent,
-                          NodeHeuristicMode num_neigs_flag,
-                          NodeSelectionMode node_select_flag)
-    -> std::vector<Partition>{
-    const auto delta = graph.getVertices().size() / number_of_partitions; // truncated
-    const auto padded_partitions = graph.getVertices().size() - number_of_partitions*delta;
-
-    auto is_partition_full = [&delta, &padded_partitions](std::size_t index, auto&& partition) {
-        if (index < padded_partitions) {
+auto part::partitionGraph(Hypergraph& graph, std::size_t numberOfPartitions, std::size_t sSetSize, std::size_t sSetCandidates, double ignoreBiggestEdgesInPercent, NodeHeuristicMode numNeigsFlag, NodeSelectionMode nodeSelectFlag) -> std::vector<Partition>{
+    const std::size_t delta = graph.getVertices().size() / numberOfPartitions;
+    const std::size_t paddedPartitions = graph.getVertices().size() - numberOfPartitions*delta;
+    auto isPartitionFull = [&delta, &paddedPartitions](std::size_t index, auto&& partition) {
+        if (index < paddedPartitions) {
             return partition.numberOfNodes() >= delta + 1; 
         } else {
             return partition.numberOfNodes() >= delta;
         } 
     };
-
-    const auto max_edge_size =
-        graph.getEdgesizeOfPercentBiggestEdge(ignore_biggest_edges_in_percent);
-
-    std::vector<Partition> part_vec;
-
-    for(std::size_t i = 0; i < number_of_partitions; ++i) {
+    const auto maxEdgeSize = graph.getEdgesizeOfPercentBiggestEdge(ignoreBiggestEdgesInPercent);
+    std::vector<Partition> partVec;
+    for(std::size_t i = 0; i < numberOfPartitions; ++i) {
         Partition part{static_cast<size_t>(i)};
-
-        SSet s_set{graph,
-                   s_set_size,
-                   num_neigs_flag,
-                   node_select_flag};
-
-        while(!is_partition_full(i, part)
-              && !graph.getVertices().empty()) {
-
-            auto next_node = s_set.getNextNode();
-
-            part.addNode(next_node,
-                         graph.getVertexEdges(next_node));
-
-            s_set.removeNode(next_node);
-
-            auto add_to_s = graph.getSSetCandidates(next_node,
-                                                    s_set_candidates,
-                                                    max_edge_size);
-
-            graph.deleteVertex(next_node);
-
-            s_set.addNodes(std::move(add_to_s));
+        SSet sSet{graph, sSetSize, numNeigsFlag, nodeSelectFlag};
+        while(!isPartitionFull(i, part) && !graph.getVertices().empty()) {
+            auto nextNode = sSet.getNextNode();
+            part.addNode(nextNode, graph.getVertexEdges(nextNode));
+            sSet.removeNode(nextNode);
+            auto addToS = graph.getSSetCandidates(nextNode, sSetCandidates, maxEdgeSize);
+            graph.deleteVertex(nextNode);
+            sSet.addNodes(std::move(addToS));
         }
-
-        part_vec.push_back(std::move(part));
+        partVec.push_back(std::move(part));
     }
-
-    return part_vec;
+    return partVec;
 }
 
 
