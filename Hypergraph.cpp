@@ -36,11 +36,11 @@ auto Hypergraph::addVertex(int v){
 
 auto Hypergraph::addEdge(int e){
     auto it = edges.find(e);
-    if(it != vertices.end()){
+    if(it != edges.end()){
         return make_pair(it,false);
     }
     else{
-        return vertices.insert(make_pair(e,std::set<int>()));
+        return edges.insert(make_pair(e,std::set<int>()));
     }
 }
 
@@ -60,8 +60,8 @@ void Hypergraph::connect(int v, int e){
     auto vertexIt = addVertex(v).first;
     auto edgeIt = addEdge(e).first;
 
-    vertexIt->second.insert(v);
-    edgeIt->second.insert(e);
+    vertexIt->second.insert(e);
+    edgeIt->second.insert(v);
 }
 
 std::size_t Hypergraph::getEdgesizeOfPercentBiggestEdge(double percent){
@@ -76,7 +76,7 @@ std::size_t Hypergraph::getEdgesizeOfPercentBiggestEdge(double percent){
     return sizeVec[(sizeVec.size() - 1) * factor];
 }
 
-auto Hypergraph::getEdges(){
+std::map<int,std::set<int> > Hypergraph::getEdges(){
     return edges;
 }
 
@@ -111,7 +111,7 @@ std::set<int> Hypergraph::getVertexEdges(int v){
     }
 }
 
-auto Hypergraph::getEdgeVertices(int e){
+std::set<int> Hypergraph::getEdgeVertices(int e){
     auto it = edges.find(e);
     if(it != edges.end()){
         return it->second;

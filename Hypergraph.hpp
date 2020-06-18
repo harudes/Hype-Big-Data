@@ -16,11 +16,11 @@ public:
     void addVertexList(int e, std::vector<int> &vertexList);
     std::size_t getEdgesizeOfPercentBiggestEdge(double percent);
     void connect(int v, int e);
-    auto getEdges();
+    std::map<int,std::set<int> > getEdges();
     std::map<int,std::set<int> > getVertices();
     void deleteVertex(int v);
     std::set<int> getVertexEdges(int v);
-    auto getEdgeVertices(int e);
+    std::set<int> getEdgeVertices(int e);
     auto getSSetCandidates(int v, std::size_t n, std::size_t maxEdgeSize);
     double getNodeHeuristicExactly(const int v);
     double getNodeHeuristicEstimate(int v);
