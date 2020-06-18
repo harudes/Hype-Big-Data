@@ -4,22 +4,22 @@
 
 class HyperGraph{
     std::map<int,std::set<int> > edges;
-    std::map<int,std::set<int> > vertex;
+    std::map<int,std::set<int> > vertices;
     std::map<int,double> neighbourMap;
 public:
     HyperGraph() = default;
-    void addVertex(int v);
-    void addEdge(int e);
-    void addEdgeList(int v, std::vector<int> edgeList);
-    void addVertexList(int e, std::vector<int> vertexList);
+    auto addVertex(int v);
+    auto addEdge(int e);
+    void addEdgeList(int v, std::vector<int> &edgeList);
+    void addVertexList(int e, std::vector<int> &vertexList);
     void getEdgesizeOfPercentBiggestEdge(double percent);
     void connect(int v, int e);
     auto getEdges();
     auto getVertices();
     void deleteVertex(int v);
-    auto getEdgesOf(int v);
-    auto getVerticesOf(int e);
-    auto getSSetCandidates(int v, int n, int ignoreEdges);
+    auto getVertexEdges(int v);
+    auto getEdgeVertices(int e);
+    auto getSSetCandidates(int v, std::size_t n, std::size_t maxEdgeSize);
     auto getNodeHeuristicExactly(int v);
     auto getNodeHeuristicEstimate(int v);
     auto getRandomNode();
