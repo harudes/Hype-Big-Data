@@ -7,9 +7,9 @@ namespace part {
 
 
 /**
- * @param graph the hypergraph which will get partitioned.
+ * @param graph the Hypergraph which will get partitioned.
  * @param number_of_partitions the number of partitions in which the
- *        hypergraph will get partitioned.
+ *        Hypergraph will get partitioned.
  * @param s_set_size the maximum size of the secondary set
  *        high numbers will slow the partitioning down, but can result in
  *        better partitioning quality.
@@ -19,7 +19,7 @@ namespace part {
  *
  * @return a vector of partitions as result of partitioning the graph
  */
-auto partitionGraph(HyperGraph&& graph,
+auto partitionGraph(Hypergraph&& graph,
                     std::size_t number_of_partitions,
                     std::size_t s_set_size,
                     std::size_t s_set_candidates,

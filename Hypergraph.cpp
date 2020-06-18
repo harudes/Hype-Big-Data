@@ -1,12 +1,14 @@
 #include "Hypergraph.hpp"
 #include <algorithm>
 #include <numeric>
+#include <stdlib.h>
 
-template<class From, class To>
-auto addAtMostN(From from,
-                std::size_t upto,
-                To to,
-                int v){
+Hypergraph::Hypergraph(){
+
+}
+
+template<class From, class To, class Predicate>
+auto addAtMostN(From&& from, std::size_t upto, To&& to, Predicate&& pred){
     auto end = from.begin();
     if(to.size() + from.size() > upto)
         std::advance(end, upto - to.size());
@@ -14,7 +16,7 @@ auto addAtMostN(From from,
         end = from.end();
     auto iter = from.begin();
     while(iter != end) {
-        if(*iter != v) {
+        if(pred(*iter)) {
             to.insert(*iter);
         }
         iter++;
@@ -22,7 +24,7 @@ auto addAtMostN(From from,
     return std::move(to);
 }
 
-auto HyperGraph::addVertex(int v){
+auto Hypergraph::addVertex(int v){
     auto it = vertices.find(v);
     if(it != vertices.end()){
         return make_pair(it,false);
@@ -32,7 +34,7 @@ auto HyperGraph::addVertex(int v){
     }
 }
 
-auto HyperGraph::addEdge(int e){
+auto Hypergraph::addEdge(int e){
     auto it = edges.find(e);
     if(it != vertices.end()){
         return make_pair(it,false);
@@ -42,19 +44,19 @@ auto HyperGraph::addEdge(int e){
     }
 }
 
-void HyperGraph::addEdgeList(int v, std::vector<int> &edgeList){
+void Hypergraph::addEdgeList(int v, std::vector<int> &edgeList){
     for(size_t i=0; i<edgeList.size(); ++i){
         connect(v,edgeList[i]);
     }
 }
 
-void HyperGraph::addVertexList(int e, std::vector<int> &vertexList){
+void Hypergraph::addVertexList(int e, std::vector<int> &vertexList){
     for(size_t i=0; i<vertexList.size(); ++i){
         connect(e,vertexList[i]);
     }
 }
 
-void HyperGraph::connect(int v, int e){
+void Hypergraph::connect(int v, int e){
     auto vertexIt = addVertex(v).first;
     auto edgeIt = addEdge(e).first;
 
@@ -62,19 +64,27 @@ void HyperGraph::connect(int v, int e){
     edgeIt->second.insert(e);
 }
 
-std::size_t HyperGraph::getEdgesizeOfPercentBiggestEdge(double percent){
-    
+std::size_t Hypergraph::getEdgesizeOfPercentBiggestEdge(double percent){
+    double factor = 1 - percent / 100;
+    std::vector<std::size_t> sizeVec;
+    for(std::map<int,std::set<int> >::iterator it = edges.begin(); it != edges.end(); ++it){
+        sizeVec.push_back(it->second.size());
+    }
+
+    std::nth_element(sizeVec.begin(), sizeVec.begin() + (sizeVec.size() - 1) * factor, sizeVec.end());
+
+    return sizeVec[(sizeVec.size() - 1) * factor];
 }
 
-auto HyperGraph::getEdges(){
+auto Hypergraph::getEdges(){
     return edges;
 }
 
-auto HyperGraph::getVertices(){
+auto Hypergraph::getVertices(){
     return vertices;
 }
 
-void HyperGraph::deleteVertex(int v){
+void Hypergraph::deleteVertex(int v){
     auto it = vertices.find(v);
     if(it != vertices.end()){
         for(auto edge:it->second){
@@ -91,7 +101,7 @@ void HyperGraph::deleteVertex(int v){
     }
 }
 
-auto HyperGraph::getVertexEdges(int v){
+std::set<int> Hypergraph::getVertexEdges(int v){
     auto it = vertices.find(v);
     if(it != vertices.end()){
         return it->second;
@@ -101,7 +111,7 @@ auto HyperGraph::getVertexEdges(int v){
     }
 }
 
-auto HyperGraph::getEdgeVertices(int e){
+auto Hypergraph::getEdgeVertices(int e){
     auto it = edges.find(e);
     if(it != edges.end()){
         return it->second;
@@ -111,7 +121,7 @@ auto HyperGraph::getEdgeVertices(int e){
     }
 }
 
-auto HyperGraph::getSSetCandidates(int v, std::size_t n, std::size_t maxEdgeSize){
+auto Hypergraph::getSSetCandidates(int v, std::size_t n, std::size_t maxEdgeSize){
     auto edges = getVertexEdges(v);
     std::set<int> neighboors;
     std::size_t currentMax = 2;
@@ -121,7 +131,7 @@ auto HyperGraph::getSSetCandidates(int v, std::size_t n, std::size_t maxEdgeSize
             auto vertices = getEdgeVertices(edge);
             if(vertices.size() > currentMax)
                 continue;
-            neighboors = addAtMostN(vertices, n, std::move(neighboors), v);
+            neighboors = addAtMostN(vertices, n, std::move(neighboors), [&v](auto&& elem) { return elem != v;});
             if(neighboors.size() >=n)
                 return neighboors;
         }
@@ -130,23 +140,36 @@ auto HyperGraph::getSSetCandidates(int v, std::size_t n, std::size_t maxEdgeSize
     return neighboors;
 }
 
-double HyperGraph::getNodeHeuristicExactly(const int v){
+double Hypergraph::getNodeHeuristicExactly(const int v){
     auto edges = getVertexEdges(v);
 
     if(edges.empty())
         return 0;
     
-    return std::accumulate(std::begin(edges), std::end(edges), 0, [this](auto init, auto edge) { return init + getVerticesOf(edge).size() - 1;})/ edges.size();
+    return std::accumulate(std::begin(edges), std::end(edges), std::size_t{0}, [this](auto init, auto edge) {return init + this->getEdgeVertices(edge).size() - 1;})/ edges.size();
 }
 
-double HyperGraph::getNodeHeuristicEstimate(int v){
+double Hypergraph::getNodeHeuristicEstimate(int v){
+    auto iter = neighbourMap.find(v);
+    if(iter != neighbourMap.end()) {
+        return iter->second;
+    }
 
+    double neigs = getNodeHeuristicExactly(v);
+
+    neighbourMap.insert({v, neigs});
+    return neigs;
 }
 
-int HyperGraph::getRandomNode(){
+int Hypergraph::getRandomNode(){
+    int v = rand()% vertices.size();
 
+    auto it = std::begin(vertices);
+    std::advance(it, v);
+
+    return it->first;
 }
 
-int HyperGraph::getAnyNode(){
+int Hypergraph::getAnyNode(){
 
 }

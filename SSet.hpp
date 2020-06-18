@@ -29,7 +29,7 @@ auto operator<<(std::ostream& os, const part::NodeSelectionMode& num)
 class SSet
 {
 public:
-    SSet(const HyperGraph& graph,
+    SSet(const Hypergraph& graph,
          std::size_t max_size,
          NodeHeuristicMode numb_of_neigs_flag,
          NodeSelectionMode node_select_flag)
@@ -59,7 +59,7 @@ private:
 
 private:
     std::set<int> _nodes;
-    const HyperGraph& _graph;
+    const Hypergraph& _graph;
     std::size_t _max_size;
     NodeHeuristicMode _numb_of_neigs_flag;
     NodeSelectionMode _node_select_flag;

@@ -78,6 +78,12 @@
         "xstring": "cpp",
         "xtr1common": "cpp",
         "xutility": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "strstream": "cpp",
+        "*.tcc": "cpp",
+        "cfenv": "cpp",
+        "cinttypes": "cpp",
+        "memory_resource": "cpp",
+        "random": "cpp"
     }
 }
