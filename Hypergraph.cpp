@@ -62,8 +62,8 @@ void HyperGraph::connect(int v, int e){
     edgeIt->second.insert(e);
 }
 
-void HyperGraph::getEdgesizeOfPercentBiggestEdge(double percent){
-
+std::size_t HyperGraph::getEdgesizeOfPercentBiggestEdge(double percent){
+    
 }
 
 auto HyperGraph::getEdges(){
@@ -130,23 +130,23 @@ auto HyperGraph::getSSetCandidates(int v, std::size_t n, std::size_t maxEdgeSize
     return neighboors;
 }
 
-auto HyperGraph::getNodeHeuristicExactly(int v){
+double HyperGraph::getNodeHeuristicExactly(const int v){
     auto edges = getVertexEdges(v);
 
     if(edges.empty())
         return 0;
     
-    
+    return std::accumulate(std::begin(edges), std::end(edges), 0, [this](auto init, auto edge) { return init + getVerticesOf(edge).size() - 1;})/ edges.size();
 }
 
-auto HyperGraph::getNodeHeuristicEstimate(int v){
-
-}
-
-auto HyperGraph::getRandomNode(){
+double HyperGraph::getNodeHeuristicEstimate(int v){
 
 }
 
-auto HyperGraph::getAnyNode(){
+int HyperGraph::getRandomNode(){
+
+}
+
+int HyperGraph::getAnyNode(){
 
 }

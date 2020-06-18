@@ -12,7 +12,7 @@ public:
     auto addEdge(int e);
     void addEdgeList(int v, std::vector<int> &edgeList);
     void addVertexList(int e, std::vector<int> &vertexList);
-    void getEdgesizeOfPercentBiggestEdge(double percent);
+    std::size_t getEdgesizeOfPercentBiggestEdge(double percent);
     void connect(int v, int e);
     auto getEdges();
     auto getVertices();
@@ -20,8 +20,8 @@ public:
     auto getVertexEdges(int v);
     auto getEdgeVertices(int e);
     auto getSSetCandidates(int v, std::size_t n, std::size_t maxEdgeSize);
-    auto getNodeHeuristicExactly(int v);
-    auto getNodeHeuristicEstimate(int v);
-    auto getRandomNode();
-    auto getAnyNode();
+    double getNodeHeuristicExactly(const int v);
+    double getNodeHeuristicEstimate(int v);
+    int getRandomNode();
+    int getAnyNode();
 };
